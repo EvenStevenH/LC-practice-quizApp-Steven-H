@@ -15,8 +15,8 @@ const questions = [
 		correctAnswerIndex: 2,
 	},
 	{
-		question: "Which planet is known as the Red Planet?",
-		answers: ["Earth", "Mars", "Jupiter", "Saturn"],
+		question: "What were the small pockets in jeans originally designed to hold?",
+		answers: ["Phones", "Pocket Watches", "Dog Tags", "Loose Change"],
 		correctAnswerIndex: 1,
 	},
 	{
@@ -26,33 +26,25 @@ const questions = [
 	},
 ];
 
-function displayQuestion() {
+/* -------------------------------------------------------------------------- */
+function loadQuestion() {
 	const currentQuestion = questions[currentQuestionIndex];
 	question.textContent = currentQuestion.question;
 	feedback.textContent = ""; // clear previous feedback
 	nextQuestionBtn.style.display = "none";
 
-	// update answer buttons > event listener for each
-	for (let i = 0; i < answerBtns.length; i++) {
-		answerBtns[i].textContent = currentQuestion.answers[i];
-		answerBtns[i].disabled = false;
-	}
+	// update answer buttons
 	answerBtns.forEach((button, index) => {
-		button.addEventListener("click", () => handleAnswer(index));
+		button.textContent = currentQuestion.answers[index];
+		button.addEventListener("click", handleAnswer);
 	});
 }
 
-function handleAnswer(selectedIndex) {
+function handleAnswer(event) {
+	const selectedIndex = answerBtns.indexOf(event.target);
 	const currentQuestion = questions[currentQuestionIndex];
 
-	// disable answers > show next question button
-	answerBtns.forEach((button) => {
-		button.removeEventListener("click", () => handleAnswer());
-		// button.disabled = true; // alternative to removeEventListener
-	});
-	nextQuestionBtn.style.display = "block";
-
-	// check if answer is correct > update feedback
+	// check if correct
 	if (selectedIndex === currentQuestion.correctAnswerIndex) {
 		feedback.textContent = "Correct!";
 		feedback.style.color = "#53D448";
@@ -60,20 +52,26 @@ function handleAnswer(selectedIndex) {
 		feedback.textContent = `Incorrect. The answer was ${currentQuestion.answers[currentQuestion.correctAnswerIndex]}!`;
 		feedback.style.color = "#FF5B38";
 	}
+
+	// disable answers > show next question button
+	answerBtns.forEach((button) => {
+		button.removeEventListener("click", handleAnswer);
+		// button.disabled = true; // alternative to removeEventListener
+	});
+	nextQuestionBtn.style.display = "block";
 }
 
-function loadNextQuestion() {
-	currentQuestionIndex++; // next question
+nextQuestionBtn.addEventListener("click", () => {
+	currentQuestionIndex++;
+
 	if (currentQuestionIndex < questions.length) {
-		displayQuestion();
+		loadQuestion();
 	} else {
 		feedback.textContent = "Quiz completed!";
 		feedback.style.color = "white";
 		nextQuestionBtn.style.display = "none";
+		answerBtns.forEach((button) => (button.disabled = true));
 	}
-}
+});
 
-/* -------------------------------------------------------------------------- */
-// on init > display first question
-nextQuestionBtn.addEventListener("click", loadNextQuestion);
-displayQuestion();
+loadQuestion(); // on init > display first question
